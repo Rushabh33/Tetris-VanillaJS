@@ -214,6 +214,15 @@ function update(time) {
   requestAnimationFrame(update);
 }
 
+let gameGrid = [];
+function createGrid(column, row) {
+  for (let i = 0; i < row; i++) {
+    gameGrid[i] = [];
+    for (let j = 0; j < column; j++) {
+      gameGrid[i][j] = 0;
+    }
+  }
+}
 
 canvas.addEventListener('keydown', e => {
   switch (e.keyCode) {
@@ -232,29 +241,6 @@ canvas.addEventListener('keydown', e => {
   }
 })
 
-
-let gameGrid = [];
-function createGrid(column, row) {
-  for (let i = 0; i < row; i++) {
-    gameGrid[i] = [];
-    for (let j = 0; j < column; j++) {
-      gameGrid[i][j] = 0;
-    }
-  }
-}
-
-
-function resolveTetromino(tetromino, gameGrid) {
-  tetromino.forEach((row, y) => {
-    row.forEach((columnValue, x) => {
-      if (columnValue !== 0) {
-        gameGrid[y + player.pos.y][x + player.pos.x] = columnValue;
-      }
-    })
-  })
-}
-
-
 function moveTetrominoDown() {
   player.pos.y++;
   if (collisonDetection(player, gameGrid)) {
@@ -271,53 +257,6 @@ function moveTetrominoHorizontal(direction) {
   }
 
 }
-
-function playerReset() {
-  const nextTetromino = Math.floor(Math.random() * 7);
-  console.log(nextTetromino)
-  player.tetrominoMatrix = player.tetrominoTypes[nextTetromino][0];
-  player.currentTetrominoType = nextTetromino;
-  player.pos.y = 0;
-  player.pos.x = 4;
-  if (collisonDetection(player, gameGrid)) {
-    console.log("player reset")
-    for (let y = 0; y < gameGrid.length; y++) {
-      for (let x = 0; x < gameGrid[y].length; x++) {
-        gameGrid[y][x] = 0;
-      }
-    }
-  }
-}
-
-
-
-
-
-
-
-function collisonDetection(player, gameGrid) {
-  // compare the position of the player tetro with the gamegrid - check for overlap
-  // overlap and NOT anticipation... so we'll move it back instead
-  // The x and y of each square is offset + the x & y from the for loop index, so we need to recrate it to get exact values to compare the gameGrid
-  // using for loop instead of forEach because you can't exit out of a forEach....goddamn
-  // gameGrid[y + player.pos.y][x + player.pos.x]
-  // ^^ checks if a 1 already exists in the grid AND if gameGrid[x + player.pos.x]exists
-  // ASK ABOUT THIs...getting a weird undefined which I've solved but don't understand origin. gameGrid[y + player.pos.y][x + player.pos.x] comes up as with error [y + player.pos.y] is undefined...which is why I put ||
-  const matrix = player.tetrominoMatrix
-  for (let y = 0; y < matrix.length; y++) {
-    for (let x = 0; x < matrix[y].length; x++) {
-      if (matrix[y][x] !== 0 && (gameGrid[y + player.pos.y] === undefined || gameGrid[y + player.pos.y][x + player.pos.x] !== 0)) {
-        if (gameGrid[y + player.pos.y] === undefined) {
-          console.log("player is @ bot");
-          player.posBottom = true;
-        } else { player.posBottom = false }
-        return true
-      }
-    }
-  }
-  return false
-}
-
 
 function rotateTetromino(player) {
   if (player.currentTetrominoType !== 3) {   // Ignoring the Square tetromino
@@ -361,8 +300,55 @@ function rotateTetromino(player) {
   }
 }
 
+function collisonDetection(player, gameGrid) {
+  // compare the position of the player tetro with the gamegrid - check for overlap
+  // overlap and NOT anticipation... so we'll move it back instead
+  // The x and y of each square is offset + the x & y from the for loop index, so we need to recrate it to get exact values to compare the gameGrid
+  // using for loop instead of forEach because you can't exit out of a forEach....goddamn
+  // gameGrid[y + player.pos.y][x + player.pos.x]
+  // ^^ checks if a 1 already exists in the grid AND if gameGrid[x + player.pos.x]exists
+  // ASK ABOUT THIs...getting a weird undefined which I've solved but don't understand origin. gameGrid[y + player.pos.y][x + player.pos.x] comes up as with error [y + player.pos.y] is undefined...which is why I put ||
+  const matrix = player.tetrominoMatrix
+  for (let y = 0; y < matrix.length; y++) {
+    for (let x = 0; x < matrix[y].length; x++) {
+      if (matrix[y][x] !== 0 && (gameGrid[y + player.pos.y] === undefined || gameGrid[y + player.pos.y][x + player.pos.x] !== 0)) {
+        if (gameGrid[y + player.pos.y] === undefined) {
+          console.log("player is @ bot");
+          player.posBottom = true;
+        } else { player.posBottom = false }
+        return true
+      }
+    }
+  }
+  return false
+}
 
+function resolveTetromino(tetromino, gameGrid) {
+  tetromino.forEach((row, y) => {
+    row.forEach((columnValue, x) => {
+      if (columnValue !== 0) {
+        gameGrid[y + player.pos.y][x + player.pos.x] = columnValue;
+      }
+    })
+  })
+}
 
+function playerReset() {
+  const nextTetromino = Math.floor(Math.random() * 7);
+  console.log(nextTetromino)
+  player.tetrominoMatrix = player.tetrominoTypes[nextTetromino][0];
+  player.currentTetrominoType = nextTetromino;
+  player.pos.y = 0;
+  player.pos.x = 4;
+  if (collisonDetection(player, gameGrid)) {
+    console.log("player reset")
+    for (let y = 0; y < gameGrid.length; y++) {
+      for (let x = 0; x < gameGrid[y].length; x++) {
+        gameGrid[y][x] = 0;
+      }
+    }
+  }
+}
 
 createGrid(canvasColumns, canvasRows);
 update();
