@@ -291,10 +291,10 @@ function rotateTetromino(player) {
       }
 
       //Hitting other pieces
-      else {
-        while (collisonDetection(player, gameGrid)) {
-          player.pos.y--
-        }
+      // else {
+      while (collisonDetection(player, gameGrid)) {
+        player.pos.y--
+        // }
       }
     }
   }
