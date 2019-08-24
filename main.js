@@ -1,7 +1,7 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 const tetrominoSize = 10;
-const dropInterval = 30000;
+const dropInterval = 1500;
 
 const canvasWidth = canvas.getAttribute("width")
 const canvasHeight = canvas.getAttribute("height")
