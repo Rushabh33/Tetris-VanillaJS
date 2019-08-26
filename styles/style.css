@@ -1,3 +1,25 @@
-/* #canvas {
-  background: black;
-} */
+body {
+  background: grey;
+}
+
+#canvas {
+  border: solid .2em white;
+  height: 50vh;
+}
+
+.canvasCon {
+  display: flex;
+  justify-content: center;
+
+  margin-top: 10px;
+}
+
+/* FONT STYLE */
+p {
+  color: #f6f6f6;
+  margin: 5px 0;
+}
+
+h4 {
+  margin: 10px 0;
+}

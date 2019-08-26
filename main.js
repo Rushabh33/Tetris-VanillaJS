@@ -386,12 +386,17 @@ function updatePoints(numRowsCleared) {
   } else {
     player.bonusPoint = false
   }
-  console.log(player.points);
   updatePlayerScore();
 }
 
 function updatePlayerScore() {
   playerScore.textContent = `${player.points}`;
+}
+
+function gameReset() {
+  player.points = 0;
+  player.bonusPoint = false;
+  updatePlayerScore()
 }
 
 function playerReset() {
@@ -406,6 +411,7 @@ function playerReset() {
         gameGrid[y][x] = 0;
       }
     }
+    gameReset()
   }
 }
 
