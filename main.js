@@ -165,6 +165,7 @@ const Z = [
 
 
 const player = {
+  points: 0,
   pos: { x: 4, y: 0 },
   posBottom: false,
   tetrominoMatrix: L[0],
@@ -173,6 +174,8 @@ const player = {
   tetrominoTypes: [Z, T, S, O, L, J, I],
   tetrominoColors: [null, "red", "blue", "green", "yellow", "white", "purple", "orange"]
 }
+
+
 
 function draw() {
   // clearing the canvas
@@ -202,6 +205,7 @@ function drawTetromino(tetrominoMatrix, offset) {
 
 
 let lastTime = 0
+// think about a do while here?
 function update(time) {
   if (!lastTime || time - lastTime >= dropInterval) {
     // Enclosing the player.pos.y++ for a better timed down movement
@@ -241,14 +245,19 @@ canvas.addEventListener('keydown', e => {
   }
 })
 
+// ****************************************************************
+
 function moveTetrominoDown() {
   player.pos.y++;
   if (collisonDetection(player, gameGrid)) {
     player.pos.y--;
     resolveTetromino(player.tetrominoMatrix, gameGrid);
+    sweepLine(gameGrid)
     playerReset()
   }
 }
+
+// ****************************************************************
 
 function moveTetrominoHorizontal(direction) {
   player.pos.x += direction
@@ -332,6 +341,34 @@ function resolveTetromino(tetromino, gameGrid) {
     })
   })
 }
+
+// splice (index to start changing the array, 1 (number of elements to remove from start))
+// unshift () x the amount of rows cleared
+
+function sweepLine(gameGrid) {
+  let whichRowsToClear = []
+  for (let y = 0; y < gameGrid.length; y++) {
+    // check which and how many rows are full
+    if (isRowFull(gameGrid[y])) {
+      whichRowsToClear.push(y) // which rows to clear & how many = whichRowsToClear.length - 1 
+    }
+  }
+
+  whichRowsToClear.forEach(rowIndex => {
+    gameGrid.splice(rowIndex, 1)
+    gameGrid.unshift(new Array(canvasColumns).fill(0))
+  })
+}
+
+function isRowFull(row) {
+  for (let x = 0; x < row.length; x++) {
+    if (!row[x]) {
+      return false
+    }
+  }
+  return true
+}
+
 
 function playerReset() {
   const nextTetromino = Math.floor(Math.random() * 7);
