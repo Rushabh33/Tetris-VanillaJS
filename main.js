@@ -9,6 +9,7 @@ const canvasScale = 20
 const canvasColumns = canvasWidth / canvasScale
 const canvasRows = canvasHeight / canvasScale
 
+const playerScore = document.getElementsByClassName("score")[0]
 
 ctx.scale(canvasScale, canvasScale)
 
@@ -166,6 +167,7 @@ const Z = [
 
 const player = {
   points: 0,
+  bonusPoint: false,
   pos: { x: 4, y: 0 },
   posBottom: false,
   tetrominoMatrix: L[0],
@@ -229,6 +231,7 @@ function createGrid(column, row) {
 }
 
 canvas.addEventListener('keydown', e => {
+  e.preventDefault();
   switch (e.keyCode) {
     case 37:
       moveTetrominoHorizontal(-1)
@@ -283,7 +286,6 @@ function rotateTetromino(player) {
 
       // Hitting left wall
       if (player.pos.x < canvasColumns / 2) {
-        console.log("less than, left")
         if (player.currentTetrominoType === 6) {
           player.pos.x += 2;
         }
@@ -292,7 +294,6 @@ function rotateTetromino(player) {
 
       // Hitting right wall
       if (player.pos.x > canvasColumns / 2) {
-        console.log("more than, right")
         if (player.currentTetrominoType === 6) {
           player.pos.x -= 2;
         }
@@ -322,7 +323,6 @@ function collisonDetection(player, gameGrid) {
     for (let x = 0; x < matrix[y].length; x++) {
       if (matrix[y][x] !== 0 && (gameGrid[y + player.pos.y] === undefined || gameGrid[y + player.pos.y][x + player.pos.x] !== 0)) {
         if (gameGrid[y + player.pos.y] === undefined) {
-          console.log("player is @ bot");
           player.posBottom = true;
         } else { player.posBottom = false }
         return true
@@ -343,21 +343,22 @@ function resolveTetromino(tetromino, gameGrid) {
 }
 
 // splice (index to start changing the array, 1 (number of elements to remove from start))
-// unshift () x the amount of rows cleared
+// unshift() x the amount of rows cleared
 
 function sweepLine(gameGrid) {
   let whichRowsToClear = []
   for (let y = 0; y < gameGrid.length; y++) {
-    // check which and how many rows are full
     if (isRowFull(gameGrid[y])) {
-      whichRowsToClear.push(y) // which rows to clear & how many = whichRowsToClear.length - 1 
+      whichRowsToClear.push(y) // which rows to clear & how many = whichRowsToClear.length
     }
   }
-
   whichRowsToClear.forEach(rowIndex => {
     gameGrid.splice(rowIndex, 1)
     gameGrid.unshift(new Array(canvasColumns).fill(0))
   })
+  if (whichRowsToClear.length) {
+    updatePoints(whichRowsToClear)
+  }
 }
 
 function isRowFull(row) {
@@ -369,16 +370,37 @@ function isRowFull(row) {
   return true
 }
 
+function updatePoints(numRowsCleared) {
+  let rowsCleared = numRowsCleared.length
+  player.points += rowsCleared
+  // ******* better way for these ifs?!?
+  if (rowsCleared > 1) {
+    if (rowsCleared > 3) {
+      player.points++
+    }
+    if (player.bonusPoint) {
+      player.points++
+      return
+    }
+    player.bonusPoint = true
+  } else {
+    player.bonusPoint = false
+  }
+  console.log(player.points);
+  updatePlayerScore();
+}
+
+function updatePlayerScore() {
+  playerScore.textContent = `${player.points}`;
+}
 
 function playerReset() {
   const nextTetromino = Math.floor(Math.random() * 7);
-  console.log(nextTetromino)
   player.tetrominoMatrix = player.tetrominoTypes[nextTetromino][0];
   player.currentTetrominoType = nextTetromino;
   player.pos.y = 0;
   player.pos.x = 4;
   if (collisonDetection(player, gameGrid)) {
-    console.log("player reset")
     for (let y = 0; y < gameGrid.length; y++) {
       for (let x = 0; x < gameGrid[y].length; x++) {
         gameGrid[y][x] = 0;
